@@ -1,0 +1,91 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Reception - NOMAD{% endblock %}
+{% block topbar_title %}Reception Hub{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Billing & Seating</h1>
+    <p class="page-subtitle">Manage guest arrivals and final settlements.</p>
+  </div>
+  <div style="display: flex; gap: 12px;">
+    <div class="stat-card" style="padding: 12px 24px; display: flex; align-items: center; gap: 16px;">
+      <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Bills Generated</div>
+      <div style="font-family: var(--font-heading); font-size: 24px; color: var(--accent);">{{ today_invoices }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <h3 class="chart-title"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:8px;animation:tablePulse 2s infinite;"></span>Live Table Status</h3>
+    <div style="display: flex; gap: 12px; font-size: 12px;">
+      <span style="color:var(--success);"><span class="badge badge-free">Free</span></span>
+      <span style="color:var(--accent);"><span class="badge badge-occupied">Occupied</span></span>
+      <span style="color:var(--accent-2);"><span class="badge badge-awaiting">Awaiting Bill</span></span>
+      <span style="color:#4A90D9;"><span class="badge badge-cleaning">Cleaning</span></span>
+    </div>
+  </div>
+
+  <div class="table-grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+    {% for table in tables %}
+      {% if table.status == 'free' %}
+      <div class="table-card {{ table.get_status_class }}" data-modal-open="seat-modal-{{ table.id }}">
+        <div class="table-number">T{{ table.number }}</div>
+        <div class="table-info">{{ table.capacity }} Seats</div>
+        <div style="margin-top: 12px; font-size: 11px; color: var(--success); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">Seat Guests &plus;</div>
+      </div>
+      
+      <!-- Seat Modal -->
+      <div class="modal-backdrop" id="seat-modal-{{ table.id }}">
+        <div class="modal" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h3 class="modal-title">Seat Table {{ table.number }}</h3>
+            <button class="modal-close" data-modal-close="seat-modal-{{ table.id }}"><i data-lucide="x"></i></button>
+          </div>
+          <form method="POST" action="{% url 'reception_dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="seat_customer">
+            <input type="hidden" name="table_id" value="{{ table.id }}">
+            <div class="form-group">
+              <label class="form-label">Party Size</label>
+              <input type="number" name="party_size" class="form-control" min="1" max="{{ table.capacity|add:2 }}" value="{{ table.capacity }}" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 32px;">
+              <label class="form-label">Assign Waiter</label>
+              <select name="waiter_id" class="form-control" required>
+                <option value="">Select a waiter (Optional)</option>
+                {% for w in waiters %}
+                <option value="{{ w.id }}">{{ w.full_name }} ({{ w.worker_id }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Seat Table & Open Order</button>
+          </form>
+        </div>
+      </div>
+
+      {% elif table.status == 'occupied' or table.status == 'awaiting_bill' %}
+      <a href="{% url 'reception_billing' table.id %}" class="table-card {{ table.get_status_class }}" style="text-decoration: none; display: block; color: inherit;">
+        <div class="table-number">T{{ table.number }}</div>
+        <div class="table-info">{{ table.current_customers }} pax</div>
+        <div style="margin-top: 12px; font-size: 11px; color: {% if table.status == 'occupied' %}var(--accent){% else %}var(--accent-2){% endif %}; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;">
+          {% if table.status == 'occupied' %}View Order{% else %}Finalize Bill →{% endif %}
+        </div>
+      </a>
+      {% elif table.status == 'cleaning' %}
+      <div class="table-card {{ table.get_status_class }}">
+        <div class="table-number">T{{ table.number }}</div>
+        <div class="table-info">Clearing...</div>
+      </div>
+      {% endif %}
+    {% empty %}
+    <div style="grid-column: 1 / -1;" class="empty-state">
+      <i data-lucide="grid" class="empty-state-icon"></i>
+      <div class="empty-state-title">No Tables Found</div>
+      <div class="empty-state-desc">Ask the owner or manager to add tables to the system.</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

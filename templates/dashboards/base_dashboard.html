@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}NOMAD Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="/dashboard/" class="sidebar-wordmark">NOM<em>A</em>D</a>
+      <div class="sidebar-role-badge">{{ user_role }}</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      {% if user_role == 'owner' %}
+      <div class="sidebar-section-label">Overview</div>
+      <a href="{% url 'owner_dashboard' %}" class="sidebar-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a href="{% url 'owner_analytics' %}" class="sidebar-item"><i data-lucide="bar-chart-2"></i> Analytics</a>
+      
+      <div class="sidebar-section-label">Operations</div>
+      <a href="{% url 'owner_tables' %}" class="sidebar-item"><i data-lucide="grid-3x3"></i> Tables</a>
+      <a href="{% url 'owner_menu' %}" class="sidebar-item"><i data-lucide="menu-square"></i> Menu Items</a>
+      <a href="{% url 'owner_workers' %}" class="sidebar-item"><i data-lucide="users"></i> Workers</a>
+      
+      <div class="sidebar-section-label">Billing & Feedback</div>
+      <a href="{% url 'owner_invoices' %}" class="sidebar-item"><i data-lucide="receipt"></i> Invoices</a>
+      <a href="{% url 'owner_reviews' %}" class="sidebar-item"><i data-lucide="star"></i> Reviews</a>
+      
+      <div class="sidebar-section-label">Settings</div>
+      <a href="{% url 'owner_qr_menu' %}" class="sidebar-item"><i data-lucide="qr-code"></i> QR Menu System</a>
+      <a href="{% url 'owner_settings' %}" class="sidebar-item"><i data-lucide="settings"></i> Restaurant Profile</a>
+      
+      {% elif user_role == 'manager' or user_role == 'asst_manager' %}
+      <div class="sidebar-section-label">Overview</div>
+      <a href="{% url 'manager_dashboard' %}" class="sidebar-item"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      
+      <div class="sidebar-section-label">Operations</div>
+      <a href="{% url 'manager_tables' %}" class="sidebar-item"><i data-lucide="grid-3x3"></i> Tables</a>
+      <a href="{% url 'manager_menu' %}" class="sidebar-item"><i data-lucide="menu-square"></i> Menu Items</a>
+      <a href="{% url 'manager_workers' %}" class="sidebar-item"><i data-lucide="users"></i> Workers</a>
+      
+      <div class="sidebar-section-label">Billing</div>
+      <a href="{% url 'manager_invoices' %}" class="sidebar-item"><i data-lucide="receipt"></i> Invoices</a>
+      
+      <div class="sidebar-section-label">Tools</div>
+      <a href="{% url 'manager_qr_menu' %}" class="sidebar-item"><i data-lucide="qr-code"></i> Download QR Menu</a>
+
+      {% elif user_role == 'receptionist' %}
+      <div class="sidebar-section-label">Billing Hub</div>
+      <a href="{% url 'reception_dashboard' %}" class="sidebar-item"><i data-lucide="layout-dashboard"></i> Live Tables</a>
+      <a href="{% url 'reception_invoices' %}" class="sidebar-item"><i data-lucide="receipt"></i> Today's Invoices</a>
+      
+      {% elif user_role == 'waiter' %}
+      <div class="sidebar-section-label">Floor</div>
+      <a href="{% url 'waiter_dashboard' %}" class="sidebar-item"><i data-lucide="list-ordered"></i> My Tables</a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">
+          {% if user_role == 'owner' %}
+            {{ request.user.first_name.0|default:'O'|upper }}
+          {% else %}
+            {{ request.user.worker_profile.full_name.0|default:'W'|upper }}
+          {% endif %}
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="sidebar-user-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {% if user_role == 'owner' %}
+              {{ request.user.get_full_name|default:request.user.email }}
+            {% else %}
+              {{ request.user.worker_profile.full_name }}
+            {% endif %}
+          </div>
+          <div class="sidebar-user-id">
+            {% if user_role == 'owner' %}
+              {{ restaurant.name|truncatechars:18 }}
+            {% else %}
+              {{ request.user.worker_profile.worker_id }}
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% url 'logout' %}" class="btn-icon" title="Logout" style="color: var(--danger);"><i data-lucide="log-out"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    {% if user_role != 'waiter' and user_role != 'chef' %}
+    <header class="topbar">
+      <h2 class="topbar-title">{% block topbar_title %}Dashboard{% endblock %}</h2>
+      <div class="topbar-actions">
+        {% block topbar_actions %}{% endblock %}
+        {% if restaurant and restaurant.status == 'active' %}
+        <span class="badge badge-free" style="margin-left: 12px;"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;"></span> Live System</span>
+        {% endif %}
+      </div>
+    </header>
+    {% endif %}
+    
+    <div class="page-body">
+      {% block dashboard_content %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+<!-- Modal for Logout Confirmation if needed -->
+{% endblock %}

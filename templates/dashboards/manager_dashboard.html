@@ -1,0 +1,90 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Manager Overview - NOMAD{% endblock %}
+{% block topbar_title %}Floor Operations{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Operations Desk</h1>
+    <p class="page-subtitle">Shift status and floor oversight.</p>
+  </div>
+  <div>
+    <a href="{% url 'manager_qr_menu' %}" class="btn btn-secondary"><i data-lucide="qr-code"></i> Download QR Menu</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-gold"><i data-lucide="users"></i></div>
+    <div class="stat-value" data-count="{{ today_customers }}">0</div>
+    <div class="stat-label">Customers Today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-green"><i data-lucide="grid-3x3"></i></div>
+    <div class="stat-value"><span data-count="{{ active_tables }}">0</span><span style="font-size:24px;color:var(--text-muted);font-family:var(--font-heading);"> / {{ all_tables_count }}</span></div>
+    <div class="stat-label">Active Tables</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-accent"><i data-lucide="receipt"></i></div>
+    <div class="stat-value" data-count="{{ today_invoices }}">0</div>
+    <div class="stat-label">Invoices Cleared</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-green"><i data-lucide="users-round"></i></div>
+    <div class="stat-value" data-count="{{ active_workers }}">0</div>
+    <div class="stat-label">Workers Clocked In</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 32px;">
+  <!-- Live Operational Status -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:8px;animation:tablePulse 2s infinite;"></span>Live Table Matrix</h3>
+      <a href="{% url 'manager_tables' %}" class="btn-ghost" style="font-size: 11px;">Floor Plan</a>
+    </div>
+    <div class="table-grid" style="grid-template-columns: repeat(4, 1fr); max-height: 400px; overflow-y: auto; padding-right: 8px;">
+      {% for table in tables %}
+      <div class="table-card {{ table.get_status_class }}" style="aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="table-number" style="font-size: 20px;">T{{ table.number }}</div>
+        <div class="table-info" style="font-size: 10px; margin-top: 4px;">
+            {% if table.status == 'occupied' or table.status == 'awaiting_bill' %}{{ table.current_customers }} pax{% else %}{{ table.get_status_display }}{% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: span 4; text-align: center; padding: 40px 0; color: var(--text-dim);">No tables added yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Worker Status -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Staff On Floor</h3>
+      <a href="{% url 'manager_workers' %}" class="btn-ghost" style="font-size: 11px;">Roster</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
+      {% for w in on_duty_workers %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface-2); border-radius: var(--radius); border: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--surface); color: var(--text); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">{{ w.full_name|slice:":1"|upper }}</div>
+          <div>
+            <div style="font-size: 14px; font-weight: 500;">{{ w.full_name }}</div>
+            <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); text-transform: uppercase;">{{ w.get_role_display }}</div>
+          </div>
+        </div>
+        <div>
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--success);"></span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding: 40px 0;">
+        <i data-lucide="users" class="empty-state-icon"></i>
+        <div class="empty-state-title">No Active Staff</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

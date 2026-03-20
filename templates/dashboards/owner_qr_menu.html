@@ -1,0 +1,59 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}QR Menu System - NOMAD{% endblock %}
+{% block topbar_title %}Menu Access Codes{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Digital Menu QR</h1>
+    <p class="page-subtitle">Download and print your unique, auto-updating menu codes.</p>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+  
+  <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
+    <div style="font-family: var(--font-heading); font-size: 20px; color: var(--text); margin-bottom: 8px;">Master Menu QR</div>
+    <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 32px; padding: 0 20px;">
+      This code redirects directly to your live digital menu. Customers can scan it anywhere without an app.
+    </div>
+    
+    {% if restaurant.menu_qr_code %}
+    <div style="background: white; padding: 16px; border-radius: 8px; display: inline-block; margin-bottom: 32px;">
+      <img src="{{ restaurant.menu_qr_code.url }}" alt="Menu QR Code" style="width: 200px; height: 200px; image-rendering: pixelated;">
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <a href="{{ restaurant.menu_qr_code.url }}" download class="btn btn-primary" style="justify-content: center;"><i data-lucide="download"></i> Vector PNG</a>
+      <button class="btn btn-secondary" onclick="NOMAD.copyMenuLink('{{ request.scheme }}://{{ request.get_host }}/menu/{{ restaurant.id }}/')"><i data-lucide="link"></i> Copy URL</button>
+    </div>
+    {% else %}
+    <div style="width: 200px; height: 200px; border: 1px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; color: var(--text-dim);">
+      Generating...
+    </div>
+    <div style="font-size: 12px; color: var(--accent);">Your QR code will be available once your restaurant profile is marked Active by a Super Admin.</div>
+    {% endif %}
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+      <h3 style="font-size: 16px; margin-bottom: 8px; color: var(--text); display: flex; align-items: center; gap: 8px;"><i data-lucide="scan" style="width: 18px; height: 18px; color: var(--accent);"></i> Per-Table QR Codes</h3>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">
+        Instead of the master menu code, you can print a unique QR code for each table. When scanned, it automatically links the customer's device to that specific table number, paving the way for future table-side ordering.
+      </p>
+      <a href="{% url 'owner_tables' %}" class="btn-ghost" style="border: 1px solid var(--border); justify-content: center; width: 100%;">View Table QRs</a>
+    </div>
+
+    <div style="background: rgba(76,175,120,0.05); border: 1px solid rgba(76,175,120,0.2); border-radius: var(--radius-lg); padding: 24px;">
+      <h3 style="font-size: 14px; color: var(--success); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;"><i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Printing Guidelines</h3>
+      <ul style="font-size: 13px; color: var(--text-muted); line-height: 1.6; padding-left: 16px; margin: 0;">
+        <li style="margin-bottom: 8px;">Ensure high-contrast printing (black ink on white stock).</li>
+        <li style="margin-bottom: 8px;">Minimum size for table standees is 2x2 inches (5x5 cm).</li>
+        <li style="margin-bottom: 8px;">Avoid glossy laminates which create glare and hinder camera scanning.</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Thank You | NOMAD{% endblock %}
+
+{% block content %}
+<div class="auth-page" style="align-items: center; justify-content: center;">
+  <div class="auth-box reveal" style="max-width: 400px; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
+    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(76,175,120,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: var(--success); border: 2px solid rgba(76,175,120,0.2);">
+      <i data-lucide="heart" style="width: 40px; height: 40px;"></i>
+    </div>
+    <h1 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 12px;">Thank You</h1>
+    <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 32px;">
+      Your feedback has been securely submitted to management. We appreciate your time!
+    </p>
+    <a href="/" class="btn btn-secondary" style="width: 100%; justify-content: center;">Learn About NOMAD</a>
+  </div>
+</div>
+{% endblock %}

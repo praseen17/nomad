@@ -1,0 +1,84 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Manage Tables - NOMAD{% endblock %}
+{% block topbar_title %}Floor Plan & Tables{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-secondary" data-modal-open="add-table-modal"><i data-lucide="plus"></i> Add Table</button>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Table Configuration</h1>
+    <p class="page-subtitle">Manage seating capacity and zones.</p>
+  </div>
+</div>
+
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Table No.</th>
+        <th>Capacity</th>
+        <th>Zone</th>
+        <th>Status</th>
+        <th style="text-align: right;">QR Code</th>
+        <th style="text-align: right;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for table in tables %}
+      <tr>
+        <td style="font-family: var(--font-heading); font-size: 18px;">T{{ table.number }}</td>
+        <td>{{ table.capacity }} Pax</td>
+        <td style="color: var(--text-dim); text-transform: capitalize;">{{ table.zone|default:"Main Hall" }}</td>
+        <td><span class="badge badge-{{ table.get_status_class }}">{{ table.get_status_display }}</span></td>
+        <td style="text-align: right;">
+          {% if table.qr_code %}
+            <a href="{{ table.qr_code.url }}" target="_blank" class="btn-ghost" style="padding: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="qr-code" style="width: 14px; height: 14px;"></i> View</a>
+          {% else %}
+            <span style="font-size: 11px; color: var(--text-dim);">Generating...</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right;">
+          <form method="POST" action="{% url 'owner_tables' %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove Table {{ table.number }}?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="table_id" value="{{ table.id }}">
+            <button type="submit" class="btn-ghost" style="padding: 4px; color: var(--danger); border: none;"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align: center; padding: 48px; color: var(--text-dim);">No tables configured. Add your first table to start generating QR codes.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Table Modal -->
+<div class="modal-backdrop" id="add-table-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Table</h3>
+      <button class="modal-close" data-modal-close="add-table-modal"><i data-lucide="x"></i></button>
+    </div>
+    <form method="POST" action="{% url 'owner_tables' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label class="form-label">Table Number</label>
+        <input type="number" name="number" class="form-control" required min="1" placeholder="e.g. 5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Seating Capacity</label>
+        <input type="number" name="capacity" class="form-control" required min="1" value="4">
+      </div>
+      <div class="form-group" style="margin-bottom: 32px;">
+        <label class="form-label">Zone (Optional)</label>
+        <input type="text" name="zone" class="form-control" placeholder="e.g. Patio, Main Hall">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Save Table</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

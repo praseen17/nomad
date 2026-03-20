@@ -1,0 +1,197 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Owner Dashboard - NOMAD{% endblock %}
+{% block topbar_title %}Overview{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Welcome back, {{ request.user.first_name }}</h1>
+    <p class="page-subtitle">Here's what's happening at {{ restaurant.name }} today.</p>
+  </div>
+  <div>
+    <a href="{% url 'owner_qr_menu' %}" class="btn btn-secondary"><i data-lucide="qr-code"></i> Download QR Menu</a>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-accent"><i data-lucide="indian-rupee"></i></div>
+    <div class="stat-value" data-count="{{ today_revenue|floatformat:0 }}">0</div>
+    <div class="stat-label">Revenue Today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-gold"><i data-lucide="users"></i></div>
+    <div class="stat-value" data-count="{{ today_customers }}">0</div>
+    <div class="stat-label">Customers Served</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-green"><i data-lucide="grid-3x3"></i></div>
+    <div class="stat-value"><span data-count="{{ active_tables }}">0</span><span style="font-size:24px;color:var(--text-muted);font-family:var(--font-heading);"> / {{ all_tables_count }}</span></div>
+    <div class="stat-label">Active Tables</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-accent"><i data-lucide="users-round"></i></div>
+    <div class="stat-value" data-count="{{ active_workers }}">0</div>
+    <div class="stat-label">Workers Clocked In</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 32px;">
+  <!-- Revenue Graph -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Revenue (Last 7 Days)</h3>
+      <a href="{% url 'owner_analytics' %}" class="btn-ghost" style="font-size: 11px;">View Full Report</a>
+    </div>
+    <div style="height: 300px; position: relative;">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Live Tables -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);margin-right:8px;animation:tablePulse 2s infinite;"></span>Live Status</h3>
+      <a href="{% url 'owner_tables' %}" class="btn-ghost" style="font-size: 11px;">Manage Tables</a>
+    </div>
+    <div class="table-grid" id="live-table-grid" style="grid-template-columns: repeat(2, 1fr); max-height: 300px; overflow-y: auto; padding-right: 8px;">
+      {% for table in tables %}
+      <div class="table-card {{ table.get_status_class }}">
+        <div class="table-number">T{{ table.number }}</div>
+        <div class="table-info">{{ table.get_status_display }}</div>
+        {% if table.status == 'occupied' %}<div style="font-size:10px;color:var(--text-dim);margin-top:4px;">{{ table.current_customers }} pax</div>{% endif %}
+      </div>
+      {% empty %}
+      <div style="grid-column: span 2; text-align: center; padding: 40px 0; color: var(--text-dim);">No tables added yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+  <!-- Recent Invoices -->
+  <div class="chart-card" style="padding: 0; overflow: hidden;">
+    <div class="chart-header" style="padding: 24px 24px 16px;">
+      <h3 class="chart-title">Recent Invoices</h3>
+    </div>
+    <div class="data-table-wrap" style="border: none; border-radius: 0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Table</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inv in recent_invoices %}
+          <tr>
+            <td style="font-family: var(--font-mono); color: var(--text-muted);"><a href="#" class="auth-link">{{ inv.invoice_number }}</a></td>
+            <td>T{{ inv.table.number }}</td>
+            <td style="font-family: var(--font-heading); font-size: 16px; color: var(--accent);">₹{{ inv.grand_total }}</td>
+            <td><span class="badge badge-free">Paid</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align: center; padding: 32px; color: var(--text-dim);">No transactions today.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top Performers -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Top Waiters Today</h3>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      {% for w in waiter_perf %}
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--surface-2); border-radius: var(--radius); border: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--glow-accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700;">{{ forloop.counter }}</div>
+          <div>
+            <div style="font-size: 14px; font-weight: 600;">{{ w.waiter__full_name }}</div>
+            <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim);">{{ w.waiter__worker_id }}</div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-family: var(--font-heading); font-size: 18px; color: var(--accent-2);">{{ w.bills }} bills</div>
+          <div style="font-size: 12px; color: var(--text-muted);">₹{{ w.revenue|floatformat:0 }} generated</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding: 40px 0;">
+        <i data-lucide="award" class="empty-state-icon"></i>
+        <div class="empty-state-title">No Data Yet</div>
+        <div class="empty-state-desc">Waiter performance will appear here as bills are cleared.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('revenueChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: {{ revenue_labels|safe }},
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: {{ revenue_data|safe }},
+            borderColor: '#D4622A',
+            backgroundColor: 'rgba(212, 98, 42, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#171410',
+            pointBorderColor: '#D4622A',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#171410',
+              titleColor: '#F5F0E8',
+              bodyColor: '#D4622A',
+              borderColor: '#2C2820',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                label: function(context) { return '₹' + context.parsed.y.toLocaleString('en-IN'); }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: '#2C2820', drawBorder: false },
+              ticks: { callback: function(value) { return '₹' + value; } }
+            },
+            x: {
+              grid: { display: false, drawBorder: false }
+            }
+          },
+          animation: {
+            duration: 2000,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

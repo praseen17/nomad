@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}KDS - NOMAD{% endblock %}
+{% block body_class %}chef-kds{% endblock %}
+
+{% block content %}
+<div style="background: #050403; min-height: 100vh; color: var(--text);">
+  
+  <header style="padding: 16px 24px; background: #0A0807; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent);">NOMAD KDS</div>
+      <div style="font-size: 14px; color: var(--text-dim); border-left: 1px solid var(--border); padding-left: 16px;">{{ restaurant.name }}</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 24px;">
+      <div style="font-family: var(--font-mono); font-size: 24px; font-weight: 700; color: var(--success);" id="kds-clock">00:00:00</div>
+      <a href="{% url 'logout' %}" style="color: var(--danger); text-decoration: none; padding: 8px;"><i data-lucide="log-out" style="width: 24px; height: 24px;"></i></a>
+    </div>
+  </header>
+
+  <div style="padding: 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; align-items: start;">
+    
+    {% for item in pending_items %}
+    <div style="background: #0A0807; border: 2px solid {% if item.status == 'preparing' %}rgba(232,169,58,0.5){% else %}var(--border){% endif %}; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;">
+      
+      <div style="padding: 16px; background: {% if item.status == 'preparing' %}rgba(232,169,58,0.1){% else %}rgba(255,255,255,0.02){% endif %}; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: {% if item.status == 'preparing' %}var(--accent-2){% else %}var(--text-muted){% endif %}; line-height: 1;">T{{ item.order.table.number }}</div>
+          <div style="font-size: 13px; color: var(--text-dim); margin-top: 8px;"><i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;"></i>{{ item.created_at|timesince }}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 4px;">Order #{{ item.order.id }}</div>
+          <div style="font-size: 14px; font-family: var(--font-mono); color: var(--text-muted);">{{ item.order.waiter.worker_id|default:"Reception" }}</div>
+        </div>
+      </div>
+
+      <div style="padding: 24px 16px; flex: 1; display: flex; align-items: center; gap: 16px;">
+        <div style="font-family: var(--font-mono); font-size: 40px; font-weight: 700; color: var(--accent); background: rgba(212,98,42,0.1); width: 64px; height: 64px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          {{ item.quantity }}
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 500; color: var(--text); line-height: 1.2;">{{ item.dish.name }}</div>
+          <div style="font-size: 14px; color: {% if item.dish.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %}; margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; display: inline-block;"></span> {{ item.dish.get_food_type_display }}
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 16px; border-top: 1px dashed var(--border); display: flex; gap: 12px;">
+        {% if item.status == 'pending' %}
+        <form method="POST" action="{% url 'chef_dashboard' %}" style="flex: 1;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mark_preparing">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <button type="submit" class="btn" style="width: 100%; justify-content: center; background: rgba(232,169,58,0.1); color: var(--accent-2); border: 1px solid rgba(232,169,58,0.3); font-size: 18px; padding: 20px 0; font-weight: 600;">Prep Started <i data-lucide="flame" style="width: 20px; height: 20px; margin-left: 8px;"></i></button>
+        </form>
+        {% elif item.status == 'preparing' %}
+        <form method="POST" action="{% url 'chef_dashboard' %}" style="flex: 1;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mark_served">
+          <input type="hidden" name="item_id" value="{{ item.id }}">
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; font-size: 18px; padding: 20px 0; background: var(--success); color: #000; border: none; font-weight: 600;">Mark Ready <i data-lucide="check-square" style="width: 20px; height: 20px; margin-left: 8px;"></i></button>
+        </form>
+        {% endif %}
+      </div>
+
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120px 24px; color: var(--text-dim);">
+      <i data-lucide="soup" style="width: 80px; height: 80px; opacity: 0.2; margin-bottom: 24px;"></i>
+      <div style="font-family: var(--font-heading); font-size: 48px; font-weight: 700; color: var(--text-muted); opacity: 0.5;">KITCHEN CLEAR</div>
+      <div style="font-size: 18px; margin-top: 12px; letter-spacing: 0.05em; text-transform: uppercase;">No Pending Orders</div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const clockEl = document.getElementById('kds-clock');
+  setInterval(() => {
+    const d = new Date();
+    clockEl.textContent = d.toLocaleTimeString('en-US', {hour12: false});
+  }, 1000);
+
+  // Auto-refresh KDS every 15 seconds if nothing is actively being clicked
+  let IdleTimeout = setTimeout(() => window.location.reload(), 15000);
+  document.addEventListener('mousemove', () => {
+    clearTimeout(IdleTimeout);
+    IdleTimeout = setTimeout(() => window.location.reload(), 15000);
+  });
+</script>
+{% endblock %}

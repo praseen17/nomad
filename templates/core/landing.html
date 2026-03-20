@@ -1,0 +1,468 @@
+{% extends 'base.html' %}
+{% block title %}NOMAD — Run every table. Own every moment.{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+
+{% block cursor %}
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+{% endblock %}
+
+{% block content %}
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <a href="/" class="nav-logo">NOM<em>A</em>D</a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#how-it-works" class="nav-link">How It Works</a>
+    <a href="#qr-menu" class="nav-link">QR Menu</a>
+    <a href="/staff/login/" class="nav-link">Staff Login</a>
+    <a href="/login/" class="btn btn-ghost btn-sm">Sign In</a>
+    <a href="/signup/" class="btn btn-primary btn-sm">Register →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-label">The Restaurant Operating System</div>
+    <h1 class="hero-title">
+      NOM<span class="accent">A</span>D
+    </h1>
+    <p class="hero-sub">The operating system for restaurants that mean business.</p>
+    <div class="hero-cta">
+      <a href="/signup/" class="btn btn-primary btn-lg">Get Started — Register Your Restaurant</a>
+      <a href="/login/" class="btn btn-secondary btn-lg">Sign In</a>
+    </div>
+    <p class="hero-trust">
+      <span>●</span> Trusted by restaurants across India &nbsp;·&nbsp; Free to onboard
+    </p>
+  </div>
+  <div class="scroll-indicator">
+    <i data-lucide="chevron-down"></i>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- WHAT IS NOMAD -->
+<section class="section" id="what">
+  <div class="section-inner">
+    <div class="what-grid reveal">
+      <div>
+        <div class="section-tag">What is NOMAD?</div>
+        <h2 class="what-heading">
+          One platform.<br>
+          Every <em>role</em>.<br>
+          Zero chaos.
+        </h2>
+        <div class="counter-strip" style="margin-top:40px;">
+          <div class="counter-item">
+            <div class="counter-value" data-count="500" data-suffix="+">0</div>
+            <div class="counter-label">Restaurants Onboarded</div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-value" data-count="125000" data-suffix="+">0</div>
+            <div class="counter-label">Orders Processed</div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-value" data-count="28" data-suffix="+">0</div>
+            <div class="counter-label">Cities Active</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:18px;line-height:1.8;color:var(--text-muted);margin-bottom:24px;" class="display-text">
+          NOMAD is a complete restaurant management system built for the modern era. From the moment a customer walks in to the final invoice — every role is covered.
+        </p>
+        <p style="font-size:15px;line-height:1.8;color:var(--text-dim);">
+          Owners see the full picture. Managers stay in control. Receptionists handle billing at speed. Waiters take orders on their phones. Chefs see live kitchen queues. All in one seamless, real-time platform.
+        </p>
+        <div style="margin-top:32px;display:flex;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
+            <i data-lucide="check" style="color:var(--success);width:16px;height:16px;"></i> Real-time sync
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
+            <i data-lucide="check" style="color:var(--success);width:16px;height:16px;"></i> Role-based access
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
+            <i data-lucide="check" style="color:var(--success);width:16px;height:16px;"></i> Firebase powered
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);">
+            <i data-lucide="check" style="color:var(--success);width:16px;height:16px;"></i> Built for India
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLE SHOWCASE -->
+<section class="section" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);" id="roles">
+  <div class="section-inner">
+    <div class="section-tag reveal">Role Showcase</div>
+    <h2 style="font-size:clamp(28px,4vw,48px);margin-bottom:8px;" class="reveal">A dashboard for every seat in the house.</h2>
+    <p style="color:var(--text-muted);font-size:16px;margin-bottom:40px;" class="reveal">
+      Every role gets an interface built precisely for their workflow.
+    </p>
+    <div class="role-tabs reveal">
+      <div class="role-tab active" data-panel="role-owner">Owner</div>
+      <div class="role-tab" data-panel="role-manager">Manager</div>
+      <div class="role-tab" data-panel="role-reception">Receptionist</div>
+      <div class="role-tab" data-panel="role-waiter">Waiter</div>
+      <div class="role-tab" data-panel="role-chef">Chef</div>
+    </div>
+
+    <div id="role-owner" class="role-panel active">
+      <div class="role-panel-text">
+        <h3>Owner Command Center</h3>
+        <p>See your entire restaurant operation at a glance. Monitor live tables, revenue, top dishes, and worker performance — all animated, all real-time.</p>
+        <ul style="margin-top:16px;list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text-muted);">
+            <i data-lucide="trending-up" style="color:var(--accent);width:16px;height:16px;flex-shrink:0;"></i> Live revenue graphs & analytics
+          </li>
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text-muted);">
+            <i data-lucide="users" style="color:var(--accent);width:16px;height:16px;flex-shrink:0;"></i> Full worker management & ID creation
+          </li>
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text-muted);">
+            <i data-lucide="grid-3x3" style="color:var(--accent);width:16px;height:16px;flex-shrink:0;"></i> Color-coded live table grid
+          </li>
+          <li style="display:flex;gap:10px;align-items:center;font-size:14px;color:var(--text-muted);">
+            <i data-lucide="qr-code" style="color:var(--accent);width:16px;height:16px;flex-shrink:0;"></i> Auto-generated QR menu management
+          </li>
+        </ul>
+      </div>
+      <div class="role-mockup">
+        <div class="role-mockup-bar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">NOMAD — Owner Dashboard</span>
+        </div>
+        <div class="mock-grid">
+          <div class="mock-tile accent"></div>
+          <div class="mock-tile gold"></div>
+          <div class="mock-tile"></div>
+        </div>
+        <div class="mock-chart"></div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="height:50px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);"></div>
+          <div style="height:50px;background:var(--surface-2);border-radius:6px;border:1px solid var(--border);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="role-manager" class="role-panel">
+      <div class="role-panel-text">
+        <h3>Manager Control Panel</h3>
+        <p>Full operational access — worker management, menu control, table oversight, invoice review — without the financial overview restricted to owners.</p>
+      </div>
+      <div class="role-mockup">
+        <div class="role-mockup-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">NOMAD — Manager Dashboard</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+          <div class="skeleton" style="height:40px;"></div>
+          <div class="skeleton" style="height:40px;"></div>
+          <div class="skeleton" style="height:40px;width:80%;"></div>
+        </div>
+        <div class="table-grid" style="margin-top:16px;">
+          <div class="table-card free" style="pointer-events:none;"><div class="table-number" style="font-size:18px;">T1</div></div>
+          <div class="table-card occupied" style="pointer-events:none;"><div class="table-number" style="font-size:18px;">T2</div></div>
+          <div class="table-card awaiting_bill" style="pointer-events:none;"><div class="table-number" style="font-size:18px;">T3</div></div>
+          <div class="table-card free" style="pointer-events:none;"><div class="table-number" style="font-size:18px;">T4</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="role-reception" class="role-panel">
+      <div class="role-panel-text">
+        <h3>Receptionist Billing Hub</h3>
+        <p>Built for speed. Seat customers, track orders live as waiters add items, apply discounts, preview invoices, and finalize billing — all from one screen.</p>
+      </div>
+      <div class="role-mockup">
+        <div class="role-mockup-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">NOMAD — Reception</span></div>
+        <div style="background:var(--surface-2);border-radius:8px;padding:14px;margin-top:8px;border:1px solid var(--border);">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-family:var(--font-mono);">TABLE 5 · ACTIVE ORDER</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);">
+              <span>Butter Chicken × 2</span><span style="color:var(--accent);">₹560</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);">
+              <span>Garlic Naan × 4</span><span style="color:var(--accent);">₹280</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;">
+              <span>Mango Lassi × 2</span><span style="color:var(--accent);">₹180</span>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-family:var(--font-heading);font-size:14px;color:var(--text-muted);">TOTAL</span>
+            <span style="font-family:var(--font-heading);font-size:22px;color:var(--accent-2);">₹1,020</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="role-waiter" class="role-panel">
+      <div class="role-panel-text">
+        <h3>Waiter Order Pad</h3>
+        <p>Mobile-first. Tap to add dishes from a searchable, filterable menu. See order status updates live. Perfectly designed for use on the restaurant floor.</p>
+      </div>
+      <div class="role-mockup" style="max-width:320px;margin:0 auto;">
+        <div class="role-mockup-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">WTR-748291</span></div>
+        <div style="text-align:center;padding:16px 0 8px;">
+          <div style="font-family:var(--font-heading);font-size:14px;color:var(--text-muted);">MY TABLES TODAY</div>
+          <div style="font-family:var(--font-heading);font-size:42px;color:var(--accent);">3</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--surface-2);border:1px solid rgba(212,98,42,0.3);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-family:var(--font-heading);font-size:18px;">Table 5</span>
+            <span style="font-size:12px;color:var(--accent-2);">4 items</span>
+          </div>
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-family:var(--font-heading);font-size:18px;">Table 9</span>
+            <span style="font-size:12px;color:var(--text-muted);">2 items</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="role-chef" class="role-panel">
+      <div class="role-panel-text">
+        <h3>Chef Kitchen Display</h3>
+        <p>High-contrast, full-screen kitchen display. See every pending and in-progress order by table. Mark items ready with a tap. Designed to be readable from 2 meters.</p>
+      </div>
+      <div class="role-mockup">
+        <div class="role-mockup-bar" style="background:#050403;"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <span style="margin-left:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);">NOMAD KDS</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+          <div style="background:#050403;border:1.5px solid rgba(232,169,58,0.3);border-radius:8px;padding:10px;">
+            <div style="font-family:var(--font-heading);font-size:18px;color:var(--accent-2);">TABLE 3</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">3 min ago</div>
+            <div style="background:rgba(232,169,58,0.1);padding:6px 8px;border-radius:4px;font-size:12px;margin-bottom:4px;">Paneer Tikka ×2 🔥</div>
+            <div style="background:var(--surface-2);padding:6px 8px;border-radius:4px;font-size:12px;">Dal Makhani ×1</div>
+          </div>
+          <div style="background:#050403;border:1.5px solid var(--border);border-radius:8px;padding:10px;">
+            <div style="font-family:var(--font-heading);font-size:18px;color:var(--text-muted);">TABLE 7</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">8 min ago</div>
+            <div style="background:var(--surface-2);padding:6px 8px;border-radius:4px;font-size:12px;">Masala Dosa ×3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BENTO -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-tag reveal">Features</div>
+    <h2 style="font-size:clamp(28px,4vw,52px);margin-bottom:10px;" class="reveal">Everything your restaurant needs.</h2>
+    <p style="color:var(--text-muted);margin-bottom:48px;font-size:16px;" class="reveal">One platform. No subscriptions to juggle.</p>
+    <div class="bento-grid reveal">
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="grid-3x3"></i></div>
+        <div class="bento-tile-title">Real-Time Table Management</div>
+        <div class="bento-tile-desc">Live color-coded table grid. Free, Occupied, Awaiting Bill, Cleaning — updated across all screens instantly.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="shield-check"></i></div>
+        <div class="bento-tile-title">Role-Based Access Control</div>
+        <div class="bento-tile-desc">7 distinct roles. Owner, Manager, Asst. Manager, Receptionist, Waiter, Chef. Each sees exactly what they need.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="receipt"></i></div>
+        <div class="bento-tile-title">Live Billing & Invoices</div>
+        <div class="bento-tile-desc">Instant invoice generation with GST. Discounts, split payments. PDF export with restaurant logo.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="bar-chart-2"></i></div>
+        <div class="bento-tile-title">Analytics & Revenue Graphs</div>
+        <div class="bento-tile-desc">Animated daily/weekly/monthly charts. Top dishes, peak hours, worker performance leaderboards.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="building-2"></i></div>
+        <div class="bento-tile-title">Multi-Restaurant Support</div>
+        <div class="bento-tile-desc">Super admin manages the entire platform. Each restaurant gets its own isolated environment.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="qr-code"></i></div>
+        <div class="bento-tile-title">QR Menu System</div>
+        <div class="bento-tile-desc">Auto-generated per-restaurant QR code. No-app customer digital menu. Real-time updates.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="star"></i></div>
+        <div class="bento-tile-title">QR Review System</div>
+        <div class="bento-tile-desc">Post-billing review QR. Customers rate waiters. No login required. Linked to invoice.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="flame"></i></div>
+        <div class="bento-tile-title">Kitchen Display System</div>
+        <div class="bento-tile-desc">Chef sees live order queue. Mark items In Preparation → Ready. Designed for kitchen environments.</div>
+      </div>
+      <div class="bento-tile">
+        <div class="bento-icon"><i data-lucide="users-round"></i></div>
+        <div class="bento-tile-title">Worker ID System</div>
+        <div class="bento-tile-desc">Auto-generated IDs (WTR-, MGR-, CHF-). Workers log in with ID + Password. No email required.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QR MENU SPOTLIGHT -->
+<section class="section qr-section" id="qr-menu">
+  <div class="section-inner">
+    <div class="qr-grid">
+      <div class="reveal">
+        <div class="qr-mockup-wrap">
+          <div class="qr-box">
+            <div class="qr-inner">
+              <div class="qr-scanline"></div>
+            </div>
+            <div class="qr-label">Spice Garden · Menu</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="section-tag">QR Menu System</div>
+        <h2 style="font-family:var(--font-display);font-size:clamp(36px,5vw,60px);font-weight:700;line-height:1.1;margin-bottom:16px;">
+          Your menu.<br>One scan away.
+        </h2>
+        <p style="color:var(--text-muted);font-size:16px;line-height:1.7;margin-bottom:28px;">
+          Every restaurant on NOMAD gets a beautiful, no-install digital menu — auto-generated and ready the moment you're approved.
+        </p>
+        <ul class="qr-points">
+          <li class="qr-point"><div class="qr-point-dot"></div>Unique QR code auto-generated on approval</li>
+          <li class="qr-point"><div class="qr-point-dot"></div>Customers scan → see the live menu with photos</li>
+          <li class="qr-point"><div class="qr-point-dot"></div>No app download required — pure mobile web</li>
+          <li class="qr-point"><div class="qr-point-dot"></div>Menu edits reflect instantly in real-time</li>
+          <li class="qr-point"><div class="qr-point-dot"></div>Printable A4 QR sheet downloadable from dashboard</li>
+          <li class="qr-point"><div class="qr-point-dot"></div>Per-table QR codes with table number encoded</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="section-inner">
+    <div class="section-tag reveal" style="text-align:center;">How It Works</div>
+    <h2 style="font-size:clamp(28px,4vw,52px);text-align:center;margin-bottom:64px;" class="reveal">Three steps to going live.</h2>
+    <div class="steps-grid reveal">
+      <div class="step">
+        <span class="step-number">01</span>
+        <div class="step-title">Register & Upload</div>
+        <div class="step-desc">Fill in your restaurant details, upload your logo and cover image. Our team reviews and activates your account.</div>
+      </div>
+      <div class="step">
+        <span class="step-number">02</span>
+        <div class="step-title">Add Your Team</div>
+        <div class="step-desc">Create workers with their roles. NOMAD auto-generates unique IDs (WTR-748291). Each gets their own dashboard.</div>
+      </div>
+      <div class="step">
+        <span class="step-number">03</span>
+        <div class="step-title">Go Live</div>
+        <div class="step-desc">Tables, menu, QR code — everything is ready. Download your QR, place it on tables, and start managing from day one.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="background:var(--surface);border-top:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-tag reveal" style="text-align:center;">What Restaurants Say</div>
+    <h2 style="font-size:clamp(28px,4vw,48px);text-align:center;margin-bottom:48px;" class="reveal">Loved by the people who feed India.</h2>
+    <div class="testimonial-grid reveal">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-quote">"NOMAD replaced four different apps we were using. The QR menu alone saved us ₹15,000 in printing costs. Our waiters can't imagine going back."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-name">Arjun Mehta</div>
+          <div class="testimonial-detail">Owner — Spice Garden, Chennai</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-quote">"The billing dashboard is incredible. My receptionist can finalize an invoice in under 30 seconds. During peak hours, that's everything."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-name">Priya Nair</div>
+          <div class="testimonial-detail">Owner — The Blue Lotus Café, Kochi</div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-quote">"Finally a POS system that doesn't look like it was designed in 2005. My staff loved it from day one. The chef screen especially — pure clarity."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-name">Rajan Krishnamurthy</div>
+          <div class="testimonial-detail">Owner — Bombay Bites, Mumbai</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="section" style="text-align:center;">
+  <div class="section-inner">
+    <div class="section-tag reveal" style="text-align:center;">Get Started</div>
+    <h2 style="font-family:var(--font-display);font-size:clamp(48px,8vw,100px);font-weight:700;line-height:1;margin-bottom:24px;" class="reveal">
+      Ready to run<br>every <em style="color:var(--accent);font-style:normal;">table</em>?
+    </h2>
+    <p style="color:var(--text-muted);font-size:18px;margin-bottom:40px;" class="reveal">Join hundreds of restaurants that run on NOMAD.</p>
+    <div class="reveal" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+      <a href="/signup/" class="btn btn-primary btn-lg">Register Your Restaurant →</a>
+      <a href="/login/" class="btn btn-secondary btn-lg">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-wordmark">NOMAD</div>
+      <div class="footer-tagline">"Run every table. Own every moment."</div>
+      <p style="margin-top:20px;font-size:13px;color:var(--text-dim);max-width:260px;line-height:1.7;">
+        The complete restaurant operating system. Built for India's restaurant industry.
+      </p>
+    </div>
+    <div>
+      <div class="footer-col-title">Platform</div>
+      <ul class="footer-links">
+        <li><a href="/signup/">Register Restaurant</a></li>
+        <li><a href="/login/">Owner Login</a></li>
+        <li><a href="/staff/login/">Staff Login</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#qr-menu">QR Menu</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Cookie Policy</a></li>
+        <li><a href="#">Refund Policy</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Contact</div>
+      <ul class="footer-links">
+        <li><a href="mailto:support@nomad.app">support@nomad.app</a></li>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Status</a></li>
+      </ul>
+      <div style="margin-top:20px;font-size:12px;color:var(--text-dim);">
+        <div>📍 Built for India</div>
+        <div style="margin-top:4px;">🔒 SOC2 Compliant</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 NOMAD Restaurant Systems. All rights reserved.</div>
+    <div style="color:var(--accent-2);">"Run every table. Own every moment."</div>
+  </div>
+</footer>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Application Received | NOMAD{% endblock %}
+
+{% block content %}
+<div class="auth-page" style="align-items: center; justify-content: center;">
+  <div class="auth-box reveal" style="max-width: 520px; text-align: center; background: var(--surface); padding: 56px 48px; border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(76,175,120,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; color: var(--success); box-shadow: 0 0 0 1px rgba(76,175,120,0.3);">
+      <i data-lucide="check" style="width: 40px; height: 40px;"></i>
+    </div>
+    
+    <h1 style="font-family: var(--font-display); font-size: 40px; font-weight: 700; margin-bottom: 16px;">Application Received</h1>
+    
+    <p style="color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 32px; padding: 0 20px;">
+      Thank you for choosing NOMAD. Your restaurant application is currently under review by our onboarding team.
+    </p>
+
+    <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: left; margin-bottom: 40px;">
+      <h3 style="font-size: 14px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="info" style="width: 16px; height: 16px; color: var(--accent-2);"></i> What happens next?
+      </h3>
+      <ol style="color: var(--text-muted); font-size: 13px; line-height: 1.6; padding-left: 20px; margin: 0;">
+        <li style="margin-bottom: 8px;">We will verify your details and attached documents.</li>
+        <li style="margin-bottom: 8px;">Upon approval, you'll receive an email notification.</li>
+        <li>Your unique QR menu will be automatically generated.</li>
+      </ol>
+    </div>
+    
+    <a href="/" class="btn btn-secondary" style="width: 100%; justify-content: center;">Return to Home</a>
+  </div>
+</div>
+{% endblock %}

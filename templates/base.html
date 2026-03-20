@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NOMAD — Run every table. Own every moment.{% endblock %}</title>
+    <meta name="description" content="{% block description %}NOMAD is the operating system for restaurants that mean business. Role-based access, real-time table management, billing, analytics and more.{% endblock %}">
+    <meta property="og:title" content="NOMAD Restaurant OS">
+    <meta property="og:description" content="The operating system for restaurants that mean business.">
+    <meta property="og:type" content="website">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Bebas+Neue&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="/static/css/nomad.css">
+
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="nomad-body {% block body_class %}{% endblock %}">
+
+    <!-- Custom Cursor (landing only) -->
+    {% block cursor %}{% endblock %}
+
+    <!-- Messages / Toasts -->
+    {% if messages %}
+    <div class="toast-container" id="toast-container">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags }}" data-auto-dismiss="4000">
+            <div class="toast-icon">
+                {% if message.tags == 'success' %}<i data-lucide="check-circle"></i>
+                {% elif message.tags == 'error' %}<i data-lucide="x-circle"></i>
+                {% elif message.tags == 'warning' %}<i data-lucide="alert-triangle"></i>
+                {% else %}<i data-lucide="info"></i>{% endif %}
+            </div>
+            <div class="toast-content">{{ message }}</div>
+            <button class="toast-close" onclick="this.parentElement.remove()"><i data-lucide="x"></i></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <!-- Base Scripts -->
+    <script src="/static/js/nomad.js"></script>
+    {% block scripts %}{% endblock %}
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Auto-dismiss toasts
+        document.querySelectorAll('.toast[data-auto-dismiss]').forEach(toast => {
+            const delay = parseInt(toast.dataset.autoDismiss) || 4000;
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.4s ease forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, delay);
+        });
+    </script>
+</body>
+</html>

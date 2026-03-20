@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Order T{{ table.number }} - NOMAD{% endblock %}
+{% block body_class %}waiter-app{% endblock %}
+
+{% block content %}
+<div style="background: var(--bg); min-height: 100vh; padding-bottom: 80px; display: flex; flex-direction: column;">
+  <!-- Header -->
+  <header style="padding: 16px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;">
+    <a href="{% url 'waiter_dashboard' %}" class="btn-ghost" style="padding: 8px; border: none; font-size: 14px; text-decoration: none;"><i data-lucide="arrow-left" style="width: 20px; height: 20px; margin-right: 4px;"></i> Back</a>
+    <h1 style="font-size: 18px; font-weight: 600;">Table {{ table.number }}</h1>
+    <div style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-2); background: rgba(232,169,58,0.1); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(232,169,58,0.3);">{{ order.customer_count }} Pax</div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div style="display: flex; background: var(--surface-2); border-bottom: 1px solid var(--border);">
+    <button class="role-tab active" data-panel="tab-menu" style="flex: 1; border-radius: 0; padding: 12px 0;">Menu</button>
+    <button class="role-tab" data-panel="tab-bill" style="flex: 1; border-radius: 0; padding: 12px 0; position: relative;">Current Order 
+      {% if order_items.count > 0 %}<span style="background: var(--accent); color: var(--bg); padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 6px;">{{ order_items.count }}</span>{% endif %}
+    </button>
+  </div>
+
+  <div style="flex: 1; overflow-y: auto;">
+    <!-- Panel: Menu List -->
+    <div id="tab-menu" class="role-panel active">
+      <!-- Search Input -->
+      <div style="padding: 16px; background: var(--surface); position: sticky; top: 0; z-index: 5;">
+        <input type="text" id="menu-search" class="form-control" placeholder="Search dish... (e.g., Paneer)" style="width: 100%; border-radius: 20px; padding-left: 16px;">
+      </div>
+      
+      {% regroup menu_items by category as category_list %}
+      {% for category in category_list %}
+      <div style="margin-bottom: 24px;">
+        <h3 style="padding: 8px 16px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); background: rgba(255,255,255,0.02); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          {{ category.grouper.name }}
+        </h3>
+        <div style="display: flex; flex-direction: column;">
+          {% for item in category.list %}
+          <div class="dish-card" style="padding: 16px; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1; padding-right: 16px;">
+              <div class="dish-name" style="font-size: 15px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                <span style="width: 10px; height: 10px; display: inline-block; border-radius: 2px; border: 1px solid {% if item.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %};"><span style="width: 4px; height: 4px; background: {% if item.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %}; display: block; border-radius: 50%; margin: 2px;"></span></span>
+                {{ item.name }}
+              </div>
+              <div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);">₹{{ item.price }}</div>
+            </div>
+            <form method="POST" action="{% url 'waiter_table_order' table.id %}" style="display: flex; align-items: center; gap: 8px;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add_item">
+              <input type="hidden" name="dish_id" value="{{ item.id }}">
+              <button type="button" class="btn-ghost" onclick="this.nextElementSibling.stepDown()" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--border);">-</button>
+              <input type="number" name="quantity" value="1" min="1" max="10" style="width: 32px; height: 32px; text-align: center; border: none; background: transparent; color: var(--text); font-family: var(--font-mono); font-size: 14px;">
+              <button type="button" class="btn-ghost" onclick="this.previousElementSibling.stepUp()" style="width: 32px; height: 32px; padding: 0; border: 1px solid var(--border);">+</button>
+              <button type="submit" class="btn" style="background: var(--accent); color: var(--bg); width: 40px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px;"><i data-lucide="plus" style="width: 18px; height: 18px;"></i></button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Panel: Current Bill -->
+    <div id="tab-bill" class="role-panel" style="padding: 16px;">
+      <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">Order Summary</h3>
+      
+      <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+        {% for item in order_items %}
+        <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+          <div style="flex: 1;">
+            <div style="font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+              {{ item.quantity }} × {{ item.dish.name }}
+            </div>
+            <div style="font-size: 11px; margin-top: 4px; display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+              {% if item.status == 'pending' %} background: rgba(212,98,42,0.1); color: var(--accent); border: 1px solid rgba(212,98,42,0.3);
+              {% elif item.status == 'preparing' %} background: rgba(232,169,58,0.1); color: var(--accent-2); border: 1px solid rgba(232,169,58,0.3);
+              {% elif item.status == 'served' %} background: rgba(76,175,120,0.1); color: var(--success); border: 1px solid rgba(76,175,120,0.3);
+              {% else %} color: var(--text-dim); {% endif %}">
+              {{ item.get_status_display }}
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: var(--font-heading); font-size: 18px; color: var(--accent-2);">₹{{ item.get_subtotal }}</div>
+          </div>
+        </div>
+        {% empty %}
+        <div style="padding: 32px 16px; text-align: center; color: var(--text-muted);">
+          <i data-lucide="shopping-bag" style="width: 32px; height: 32px; color: var(--text-dim); margin-bottom: 8px;"></i>
+          <p>No items added yet. Switch to Menu to add dishes.</p>
+        </div>
+        {% endfor %}
+      </div>
+      
+      {% if order_items.count > 0 %}
+      <div style="margin-top: 24px; padding: 24px; background: rgba(76,175,120,0.1); border: 1px solid rgba(76,175,120,0.3); border-radius: var(--radius-lg); text-align: center;">
+        <div style="font-size: 12px; color: var(--success); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 4px;">Subtotal (Est.)</div>
+        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 700; color: var(--text); line-height: 1;">₹{{ subtotal|floatformat:2 }}</div>
+      </div>
+      
+      <form method="POST" action="{% url 'waiter_table_order' table.id %}" style="margin-top: 24px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_bill">
+        <button type="submit" class="btn btn-secondary btn-lg" style="width: 100%; justify-content: center; font-size: 16px; padding: 18px; border-color: rgba(255,255,255,0.1);">Raise Bill Request</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple role tab switching for waiter layout
+  document.querySelectorAll('.role-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.role-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // Local menu search
+  const searchInput = document.getElementById('menu-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll('.dish-card').forEach(card => {
+        const name = card.querySelector('.dish-name').textContent.toLowerCase();
+        card.style.display = name.includes(q) ? 'flex' : 'none';
+      });
+      document.querySelectorAll('.role-panel h3').forEach(header => {
+         const siblingGrid = header.nextElementSibling;
+         let hasVisible = false;
+         for(let i = 0; i < siblingGrid.children.length; i++) {
+             if(siblingGrid.children[i].style.display !== 'none') {
+                 hasVisible = true;
+                 break;
+             }
+         }
+         header.style.display = hasVisible ? 'block' : 'none';
+      });
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Workers Roster - NOMAD{% endblock %}
+{% block topbar_title %}Staff Management{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-secondary" data-modal-open="hire-worker-modal"><i data-lucide="user-plus"></i> Hire Staff</button>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Team Roster</h1>
+    <p class="page-subtitle">Manage shifts and role assignments.</p>
+  </div>
+</div>
+
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Staff Member</th>
+        <th>NOMAD ID</th>
+        <th>Role</th>
+        <th>Phone</th>
+        <th style="text-align: right;">Status</th>
+        <th style="text-align: right;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for worker in workers %}
+      <tr>
+        <td>
+          <div style="font-weight: 500;">{{ worker.full_name }}</div>
+          {% if worker.user%}<div style="font-size: 11px; color: var(--text-dim); font-family: var(--font-mono);">Platform Access: Yes</div>{% endif %}
+        </td>
+        <td style="font-family: var(--font-mono); color: var(--accent);">{{ worker.worker_id }}</td>
+        <td style="text-transform: capitalize; color: var(--text-muted);">{{ worker.get_role_display }}</td>
+        <td style="font-family: var(--font-mono); color: var(--text-dim);">{{ worker.phone|default:"-" }}</td>
+        <td style="text-align: right;">
+          {% if worker.is_active %}
+            <span class="badge badge-free">Active</span>
+          {% else %}
+            <span class="badge badge-occupied">Off-Duty</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+          <form method="POST" action="{% if user_role == 'owner' %}{% url 'owner_workers' %}{% else %}{% url 'manager_workers' %}{% endif %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_active">
+            <input type="hidden" name="worker_id" value="{{ worker.id }}">
+            <button type="submit" class="btn-ghost" style="padding: 4px; border: none; font-size: 12px;">Toggle Duty</button>
+          </form>
+          {% if user_role == 'owner' %}
+          <form method="POST" action="{% url 'owner_workers' %}" onsubmit="return confirm('Terminate {{ worker.full_name }}?');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="worker_id" value="{{ worker.id }}">
+            <button type="submit" class="btn-ghost" style="padding: 4px; color: var(--danger); border: none;"><i data-lucide="user-minus" style="width: 16px; height: 16px;"></i></button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align: center; padding: 48px; color: var(--text-dim);">No staff added. Hire workers to build your team.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Hire Worker Modal -->
+<div class="modal-backdrop" id="hire-worker-modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Hire New Staff</h3>
+      <button class="modal-close" data-modal-close="hire-worker-modal"><i data-lucide="x"></i></button>
+    </div>
+    <form method="POST" action="{% if user_role == 'owner' %}{% url 'owner_workers' %}{% else %}{% url 'manager_workers' %}{% endif %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="full_name" class="form-control" required placeholder="e.g. Rahul Sharma">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role Assignment</label>
+        <select name="role" class="form-control" required>
+          <option value="">Select a role</option>
+          <option value="waiter">Waiter (Floor Staff)</option>
+          <option value="chef">Chef (Kitchen Staff)</option>
+          <option value="receptionist">Receptionist (Front Desk)</option>
+          <option value="manager">Manager</option>
+          <option value="asst_manager">Assistant Manager</option>
+        </select>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;">
+          Worker IDs (e.g. WTR-123) are auto-generated based on role.
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+91">
+      </div>
+      <div class="form-group" style="margin-bottom: 32px;">
+        <label class="form-label">Platform Password</label>
+        <input type="password" name="password" class="form-control" required minlength="6" placeholder="Assign a unique pin or password">
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;">Staff will use their generated ID + Password to login. Waiters won't need an email.</div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Save & Generate ID</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

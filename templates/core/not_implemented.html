@@ -1,0 +1,14 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Coming Soon - NOMAD{% endblock %}
+{% block topbar_title %}Module Status{% endblock %}
+
+{% block dashboard_content %}
+<div class="empty-state" style="padding: 100px 0; max-width: 480px; margin: 0 auto; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius-lg);">
+  <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(232,169,58,0.1); color: var(--accent-2); display: flex; align-items: center; justify-content: center; margin: 0 auto 32px;"><i data-lucide="construction" style="width: 40px; height: 40px;"></i></div>
+  <h1 style="font-family: var(--font-heading); font-size: 32px; font-weight: 700; color: var(--text); margin-bottom: 16px;">System Update</h1>
+  <p style="color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 32px; padding: 0 32px;">
+    The <strong style="color: var(--text);">{{ request.path }}</strong> module is currently under development for this role and will be deployed in the next platform update.
+  </p>
+  <a href="javascript:history.back()" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %}

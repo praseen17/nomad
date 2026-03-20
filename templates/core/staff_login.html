@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Staff Login | NOMAD{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-left" style="background: url('/static/images/image2.jpg') center/cover; position: relative;">
+    <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(14,12,10,0.6), var(--bg));"></div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-box reveal">
+      <a href="/" class="auth-logo">NOM<em>A</em>D</a>
+      <div class="auth-tagline">"Run every table. Own every moment."</div>
+      
+      <h1 class="auth-title">Staff Sign In</h1>
+      <p class="auth-subtitle">Welcome back. Enter your Staff ID to start your shift.</p>
+
+      <form method="POST" action="{% url 'staff_login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label" for="worker_id">Staff ID</label>
+          <input type="text" id="worker_id" name="worker_id" class="form-control" style="text-transform: uppercase;" required autofocus placeholder="WTR-XXXXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Platform Password</label>
+          <div style="position: relative;">
+            <input type="password" id="password" name="password" class="form-control" required placeholder="••••••••">
+            <button type="button" class="btn-ghost" data-toggle-password="#password" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 4px; border: none;">
+              <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+            </button>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top: 8px;">Access Dashboard <i data-lucide="arrow-right"></i></button>
+      </form>
+
+      <div style="margin-top: 32px; font-size: 13px; color: var(--text-dim); text-align: center; line-height: 1.6;">
+        Forgot your Staff ID or password? <br>Please contact your outlet Manager or Owner.
+      </div>
+      <div style="margin-top: 16px; font-size: 14px; color: var(--text-muted); text-align: center;">
+        Owner? <a href="{% url 'owner_login' %}" class="auth-link">Owner Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Menu | {{ restaurant.name }}{% endblock %}
+{% block body_class %}customer-menu{% endblock %}
+
+{% block content %}
+<div style="background: var(--bg); min-height: 100vh;">
+  <!-- Header -->
+  <header style="padding: 24px; text-align: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--border);">
+    {% if restaurant.banner_local %}
+    <div style="position: absolute; inset: 0; background: url('{{ restaurant.banner_local.url }}') center/cover; opacity: 0.15; z-index: 0; filter: blur(4px);"></div>
+    {% endif %}
+    <div style="position: relative; z-index: 1;">
+      {% if restaurant.logo_local %}
+      <div style="width: 80px; height: 80px; border-radius: 50%; background: url('{{ restaurant.logo_local.url }}') center/cover; margin: 0 auto 16px; border: 2px solid var(--border);"></div>
+      {% endif %}
+      <h1 style="font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 4px;">{{ restaurant.name }}</h1>
+      <p style="font-size: 14px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em;">Digital Menu</p>
+      {% if table_number %}
+      <div style="display: inline-block; margin-top: 16px; background: rgba(212,98,42,0.1); border: 1px solid rgba(212,98,42,0.3); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Table {{ table_number }}</div>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Sticky Categories / Search -->
+  <div style="position: sticky; top: 0; background: rgba(14,12,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); z-index: 10; padding: 16px;">
+    <div style="position: relative; margin-bottom: 16px;">
+      <i data-lucide="search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-dim);"></i>
+      <input type="text" id="menu-search" class="form-control" placeholder="Search dishes..." style="width: 100%; padding-left: 40px; border-radius: 24px; background: var(--surface);">
+    </div>
+    
+    <div style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;">
+      <button class="category-pill active" data-category="all" style="white-space: nowrap; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer;">All</button>
+      {% for data in menu_data %}
+      {% if data.category %}
+      <button class="category-pill" data-category="cat-{{ data.category.id }}" style="white-space: nowrap; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer;">{{ data.category.name }}</button>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Menu Content -->
+  <div style="padding: 16px; padding-bottom: 60px;">
+    {% for data in menu_data %}
+    <div class="menu-section" data-category="{% if data.category %}cat-{{ data.category.id }}{% else %}all{% endif %}" style="margin-bottom: 32px;">
+      {% if data.category %}
+      <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); color: var(--accent-2);">{{ data.category.name }}</h2>
+      {% endif %}
+      
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        {% for dish in data.dishes %}
+        <div class="dish-card" style="display: flex; gap: 16px; {% if not dish.is_available %}opacity: 0.5; filter: grayscale(1);{% endif %}">
+          <div style="flex: 1;">
+            <div class="dish-name" style="font-size: 16px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+              <span title="{{ dish.get_food_type_display }}" style="width: 12px; height: 12px; display: inline-block; border-radius: 2px; border: 1px solid {% if dish.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %};"><span style="width: 6px; height: 6px; background: {% if dish.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %}; display: block; border-radius: 50%; margin: 2px;"></span></span>
+              {{ dish.name }}
+            </div>
+            
+            {% if dish.price > 0 %}
+            <div style="font-family: var(--font-heading); font-size: 18px; color: var(--text); margin-bottom: 6px;">₹{{ dish.price }}</div>
+            {% endif %}
+            
+            {% if dish.description %}
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0;">{{ dish.description }}</p>
+            {% endif %}
+            
+            {% if not dish.is_available %}
+            <div style="font-size: 11px; font-style: italic; color: var(--danger); margin-top: 8px;">Sold Out Currently</div>
+            {% endif %}
+          </div>
+          
+          {% if dish.image %}
+          <div style="width: 96px; height: 96px; border-radius: 12px; flex-shrink: 0; background: url('{{ dish.image.url }}') center/cover; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <footer style="text-align: center; padding: 32px 16px; border-top: 1px solid var(--border); margin-top: 40px;">
+    <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Powered by NOMAD System</div>
+  </footer>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple CSS styling for the active state of pills since we didn't add it in nomad.css
+  const style = document.createElement('style');
+  style.textContent = `
+    .category-pill.active { background: var(--accent) !important; color: var(--bg) !important; border-color: var(--accent) !important; }
+    #menu-search { padding-left: 40px !important; }
+  `;
+  document.head.appendChild(style);
+</script>
+{% endblock %}
