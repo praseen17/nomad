@@ -458,7 +458,67 @@ def manager_menu(request):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'toggle_availability':
+        
+        if action == 'add_category':
+            cat_name = request.POST.get('cat_name', '').strip()
+            if cat_name:
+                MenuCategory.objects.create(restaurant=restaurant, name=cat_name)
+                messages.success(request, f'Category "{cat_name}" added.')
+            return redirect('manager_menu')
+            
+        elif action == 'add_dish':
+            name = request.POST.get('name', '').strip()
+            price = request.POST.get('price', 0)
+            category_id = request.POST.get('category_id') or None
+            description = request.POST.get('description', '').strip()
+            food_type = request.POST.get('food_type', 'veg')
+            image_url = request.POST.get('image_url', '').strip()
+
+            if name and price:
+                category = None
+                if category_id:
+                    try:
+                        category = MenuCategory.objects.get(id=category_id, restaurant=restaurant)
+                    except MenuCategory.DoesNotExist:
+                        pass
+                dish = Dish.objects.create(
+                    restaurant=restaurant,
+                    category=category,
+                    name=name,
+                    price=price,
+                    description=description,
+                    food_type=food_type,
+                    image_url=image_url or None,
+                )
+                if 'image' in request.FILES:
+                    dish.image_local = request.FILES['image']
+                    dish.save()
+                messages.success(request, f'Dish "{name}" added successfully!')
+            else:
+                messages.error(request, 'Name and price are required.')
+            return redirect('manager_menu')
+            
+        elif action == 'delete_dish':
+            dish_id = request.POST.get('dish_id')
+            try:
+                dish = Dish.objects.get(id=dish_id, restaurant=restaurant)
+                dish.delete()
+                messages.success(request, 'Dish deleted.')
+            except Dish.DoesNotExist:
+                pass
+            return redirect('manager_menu')
+            
+        elif action == 'delete_category':
+            category_id = request.POST.get('category_id')
+            try:
+                category = MenuCategory.objects.get(id=category_id, restaurant=restaurant)
+                category.delete()
+                messages.success(request, 'Category deleted.')
+            except MenuCategory.DoesNotExist:
+                pass
+            return redirect('manager_menu')
+            
+        elif action == 'toggle_availability':
             dish_id = request.POST.get('dish_id')
             try:
                 dish = Dish.objects.get(id=dish_id, restaurant=restaurant)
@@ -611,7 +671,8 @@ def reception_billing(request, table_id):
 
         elif action == 'finalize':
             discount_type = request.POST.get('discount_type', '')
-            discount_value = float(request.POST.get('discount_value', 0))
+            raw_discount = request.POST.get('discount_value', '').strip()
+            discount_value = float(raw_discount) if raw_discount else 0.0
             payment_mode = request.POST.get('payment_mode', 'cash')
 
             subtotal = order.get_total()
@@ -645,7 +706,7 @@ def reception_billing(request, table_id):
 
             order.status = Order.STATUS_COMPLETED
             order.save()
-            table.status = Table.STATUS_CLEANING
+            table.status = Table.STATUS_FREE
             table.current_customers = 0
             table.save()
 
@@ -688,14 +749,15 @@ def waiter_dashboard(request):
     restaurant = worker.restaurant
     orders = Order.objects.filter(
         restaurant=restaurant,
-        waiter=worker,
         status=Order.STATUS_OPEN
     ).select_related('table')
+    free_tables = Table.objects.filter(restaurant=restaurant, status=Table.STATUS_FREE)
 
     context = {
         'restaurant': restaurant,
         'worker': worker,
-        'orders': orders,
+        'assigned_orders': orders,
+        'free_tables': free_tables,
         'user_role': 'waiter',
     }
     return render(request, 'dashboards/waiter_dashboard.html', context)
@@ -720,33 +782,34 @@ def waiter_table(request, table_id):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'add_dish':
+        if action == 'add_item':
             dish_id = request.POST.get('dish_id')
+            quantity = int(request.POST.get('quantity', 1))
             try:
                 dish = Dish.objects.get(id=dish_id, restaurant=restaurant, is_available=True)
                 item, created = OrderItem.objects.get_or_create(
                     order=order, dish=dish,
-                    defaults={'quantity': 1, 'unit_price': dish.price}
+                    status=OrderItem.ITEM_STATUS_PENDING,
+                    defaults={'quantity': quantity}
                 )
                 if not created:
-                    item.quantity += 1
+                    item.quantity += quantity
                     item.save()
-                messages.success(request, f'Added {dish.name}')
+                messages.success(request, f'Added {dish.name} to order.')
             except Dish.DoesNotExist:
-                messages.error(request, 'Dish not available.')
+                messages.error(request, 'Dish not found or unavailable.')
             return redirect('waiter_table', table_id=table_id)
 
         elif action == 'remove_item':
             item_id = request.POST.get('item_id')
             try:
-                item = OrderItem.objects.get(id=item_id, order=order)
-                if item.quantity > 1:
-                    item.quantity -= 1
-                    item.save()
-                else:
-                    item.delete()
+                # Remove the entire item line if it's still pending
+                item = OrderItem.objects.get(id=item_id, order=order, status=OrderItem.ITEM_STATUS_PENDING)
+                item_name = item.dish.name
+                item.delete()
+                messages.success(request, f'Removed {item_name} from order.')
             except OrderItem.DoesNotExist:
-                pass
+                messages.error(request, 'Cannot remove item (it may already be in the kitchen).')
             return redirect('waiter_table', table_id=table_id)
 
     context = {
@@ -755,7 +818,7 @@ def waiter_table(request, table_id):
         'table': table,
         'order': order,
         'order_items': order.items.select_related('dish').all(),
-        'dishes': dishes,
+        'menu_items': dishes,
         'categories': categories,
         'user_role': 'waiter',
     }
@@ -787,26 +850,29 @@ def chef_dashboard(request):
             pass
         return redirect('chef_dashboard')
 
-    # Group by table/order
-    orders_with_items = {}
-    for item in pending_items:
-        key = item.order.id
-        if key not in orders_with_items:
-            orders_with_items[key] = {
-                'order': item.order,
-                'table': item.order.table,
-                'items': []
-            }
-        orders_with_items[key]['items'].append(item)
-
     context = {
         'restaurant': restaurant,
         'worker': worker,
-        'orders_with_items': orders_with_items.values(),
-        'pending_count': pending_items.count(),
+        'pending_items': pending_items,
         'user_role': 'chef',
     }
     return render(request, 'dashboards/chef_dashboard.html', context)
+
+
+@login_required
+def invoice_print(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if hasattr(request.user, 'worker_profile'):
+        restaurant = request.user.worker_profile.restaurant
+    elif hasattr(request.user, 'restaurant'):
+        restaurant = request.user.restaurant
+    else: 
+        restaurant = invoice.restaurant
+        
+    if invoice.restaurant != restaurant and not hasattr(request.user, 'super_admin_profile'):
+        return render(request, 'core/403.html', status=403)
+        
+    return render(request, 'dashboards/invoice_print.html', {'invoice': invoice, 'restaurant': invoice.restaurant})
 
 
 # ===== SUPER ADMIN =====

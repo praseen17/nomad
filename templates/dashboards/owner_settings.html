@@ -1,0 +1,60 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Settings | NOMAD{% endblock %}
+{% block topbar_title %}System Preferences{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Profile Configuration</h1>
+    <p class="page-subtitle">Update your brand identity and regulatory information.</p>
+  </div>
+</div>
+
+<div style="max-width: 600px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px;">
+  
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div style="margin-bottom: 32px; display: flex; align-items: center; gap: 24px;">
+      <div style="position: relative;">
+        {% if restaurant.logo_local %}
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: url('{{ restaurant.logo_local.url }}') center/cover; border: 2px solid var(--border);"></div>
+        {% else %}
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; border: 2px dashed var(--border); color: var(--text-dim);"><i data-lucide="image"></i></div>
+        {% endif %}
+      </div>
+      <div style="flex: 1;">
+        <label class="form-label">Brand Logo</label>
+        <input type="file" name="logo" class="form-control" accept="image/*" style="padding: 6px;">
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;">Displays on customer menus. 1:1 Aspect.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Restaurant Name</label>
+      <input type="text" name="name" class="form-control" value="{{ restaurant.name }}" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Contact Phone</label>
+      <input type="text" name="phone" class="form-control" value="{{ restaurant.phone|default:'' }}">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;">
+      <div class="form-group">
+        <label class="form-label">GST Number</label>
+        <input type="text" name="gst_number" class="form-control" value="{{ restaurant.gst_number|default:'' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">FSSAI Number</label>
+        <input type="text" name="fssai_number" class="form-control" value="{{ restaurant.fssai_number|default:'' }}">
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 16px; justify-content: flex-end;">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}

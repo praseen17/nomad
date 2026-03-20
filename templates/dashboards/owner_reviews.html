@@ -1,0 +1,48 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Guest Reviews | NOMAD{% endblock %}
+{% block topbar_title %}Guest Feedback{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Verified Reviews</h1>
+    <p class="page-subtitle">Feedback linked directly to finalized invoices and specific staff.</p>
+  </div>
+</div>
+
+<div class="bento-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+  {% for review in reviews %}
+  <div class="bento-tile" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <div style="color: var(--accent-2); font-size: 20px; letter-spacing: 2px;">
+          {% for i in "12345" %}
+          {% if forloop.counter <= review.rating %}★{% else %}<span style="color: var(--text-dim);">★</span>{% endif %}
+          {% endfor %}
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px; font-family: var(--font-mono);">INV-{{ review.invoice.invoice_number }}</div>
+      </div>
+      <div style="font-size: 12px; color: var(--text-muted);">{{ review.created_at|date:"M d, Y" }}</div>
+    </div>
+    
+    <p style="font-size: 14px; line-height: 1.6; color: var(--text); flex: 1; margin: 0; font-style: italic;">
+      "{{ review.comment|default:"No comment provided." }}"
+    </p>
+
+    <div style="border-top: 1px dashed var(--border); padding-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid var(--border);">{{ review.waiter.full_name|slice:":1"|upper }}</div>
+        <div style="font-size: 12px; font-weight: 500;">{{ review.waiter.full_name }}</div>
+      </div>
+      <div style="font-size: 11px; color: var(--success);">T{{ review.invoice.table.number }}</div>
+    </div>
+  </div>
+  {% empty %}
+  <div style="grid-column: 1 / -1; padding: 64px 24px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius-lg);">
+    <i data-lucide="message-square" style="width: 48px; height: 48px; color: var(--text-dim); margin-bottom: 16px; opacity: 0.5;"></i>
+    <div style="font-size: 18px; color: var(--text-muted); font-weight: 500;">No reviews yet</div>
+    <div style="font-size: 13px; color: var(--text-dim); margin-top: 8px;">Guests can leave reviews by scanning the QR on their digital receipts.</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

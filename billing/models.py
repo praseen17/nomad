@@ -9,8 +9,10 @@ from datetime import date
 
 def generate_invoice_number():
     today = date.today().strftime('%Y%m%d')
-    count = Invoice.objects.filter(created_at__date=date.today()).count() + 1
-    return f"INV-{today}-{count:04d}"
+    # Use as_uuid for clarity and to satisfy linter indexing checks
+    unique_id = uuid.uuid4().hex.upper()
+    unique_fragment = unique_id[0:6]
+    return f"INV-{today}-{unique_fragment}"
 
 
 class Invoice(models.Model):
@@ -59,6 +61,28 @@ class Invoice(models.Model):
         if not self.invoice_number:
             self.invoice_number = generate_invoice_number()
         super().save(*args, **kwargs)
+
+    def generate_review_qr_code(self, request):
+        if not self.review_qr_code:
+            review_url = reverse('review_invoice', kwargs={'token': self.review_token})
+            # Use dynamic host so it works on mobile devices on same network
+            protocol = 'https' if request.is_secure() else 'http'
+            full_url = f"{protocol}://{request.get_host()}{review_url}"
+
+            qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+            qr.add_data(full_url)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill_color="black", back_color="white").convert('RGB')
+
+            # Save QR code to a BytesIO object
+            buffer = BytesIO()
+            img.save(buffer, format="PNG")
+            filename = f'invoice_review_qr_{self.pk}.png'
+            self.review_qr_code.save(filename, File(buffer), save=False)
+            self.review_qr_url = full_url # Store the URL for convenience
+            self.save(update_fields=['review_qr_code', 'review_qr_url'])
+
 
     def calculate_totals(self):
         self.subtotal = self.order.get_total()

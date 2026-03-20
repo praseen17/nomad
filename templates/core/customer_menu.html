@@ -48,10 +48,10 @@
       
       <div style="display: flex; flex-direction: column; gap: 16px;">
         {% for dish in data.dishes %}
-        <div class="dish-card" style="display: flex; gap: 16px; {% if not dish.is_available %}opacity: 0.5; filter: grayscale(1);{% endif %}">
+        <div class="dish-card {% if not dish.is_available %}sold-out{% endif %}" style="display: flex; gap: 16px;">
           <div style="flex: 1;">
             <div class="dish-name" style="font-size: 16px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-              <span title="{{ dish.get_food_type_display }}" style="width: 12px; height: 12px; display: inline-block; border-radius: 2px; border: 1px solid {% if dish.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %};"><span style="width: 6px; height: 6px; background: {% if dish.food_type == 'veg' %}var(--success){% else %}var(--danger){% endif %}; display: block; border-radius: 50%; margin: 2px;"></span></span>
+              <span title="{{ dish.get_food_type_display }}" style="width: 12px; height: 12px; display: inline-block; border-radius: 2px; border: 1px solid #4CAF78;"><span style="width: 6px; height: 6px; background: #4CAF78; display: block; border-radius: 50%; margin: 2px;"></span></span>
               {{ dish.name }}
             </div>
             
@@ -86,12 +86,69 @@
 
 {% block scripts %}
 <script>
-  // Simple CSS styling for the active state of pills since we didn't add it in nomad.css
+  // Simple CSS styling for the active state of pills
   const style = document.createElement('style');
   style.textContent = `
     .category-pill.active { background: var(--accent) !important; color: var(--bg) !important; border-color: var(--accent) !important; }
     #menu-search { padding-left: 40px !important; }
+    .dish-card.hidden { display: none !important; }
+    .menu-section.hidden { display: none !important; }
+    .dish-card.sold-out { opacity: 0.5; filter: grayscale(1); }
   `;
   document.head.appendChild(style);
+
+  // Category Filtering
+  const pills = document.querySelectorAll('.category-pill');
+  const sections = document.querySelectorAll('.menu-section');
+  
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      
+      const cat = pill.dataset.category;
+      sections.forEach(sec => {
+        if (cat === 'all' || sec.dataset.category === cat) {
+          sec.classList.remove('hidden');
+        } else {
+          sec.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // Search Logic
+  const searchInput = document.getElementById('menu-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      
+      // Reset categories if searching
+      if (q.length > 0) {
+        pills.forEach(p => p.classList.remove('active'));
+        pills[0].classList.add('active'); // "All"
+      }
+
+      document.querySelectorAll('.dish-card').forEach(card => {
+        const name = card.querySelector('.dish-name').textContent.toLowerCase();
+        const desc = card.querySelector('p')?.textContent.toLowerCase() || "";
+        if (name.includes(q) || desc.includes(q)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      // Hide empty sections
+      sections.forEach(sec => {
+        const visibleDishes = sec.querySelectorAll('.dish-card:not(.hidden)');
+        if (visibleDishes.length > 0) {
+          sec.classList.remove('hidden');
+        } else {
+          sec.classList.add('hidden');
+        }
+      });
+    });
+  }
 </script>
 {% endblock %}

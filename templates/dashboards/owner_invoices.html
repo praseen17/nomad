@@ -47,7 +47,7 @@
           <span style="font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);">{{ inv.get_payment_mode_display }}</span>
         </td>
         <td style="text-align: right;">
-          <a href="#" class="btn-ghost" title="Print PDF" style="padding: 6px; border: 1px solid var(--border);"><i data-lucide="printer" style="width: 16px; height: 16px;"></i></a>
+          <a href="{% url 'invoice_print' inv.id %}" target="_blank" class="btn-ghost" title="Print PDF" style="padding: 6px; border: 1px solid var(--border);"><i data-lucide="printer" style="width: 16px; height: 16px;"></i></a>
         </td>
       </tr>
       {% empty %}

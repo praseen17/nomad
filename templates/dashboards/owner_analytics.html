@@ -1,0 +1,69 @@
+{% extends 'dashboards/base_dashboard.html' %}
+{% block title %}Analytics Engine | NOMAD{% endblock %}
+{% block topbar_title %}Profit & Performance{% endblock %}
+{% block topbar_actions %}
+<button class="btn btn-secondary"><i data-lucide="download-cloud"></i> Export PDF Report</button>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="page-header" style="margin-bottom: 24px;">
+  <div>
+    <h1 class="page-title">Analytics</h1>
+    <p class="page-subtitle">Historical financial data and trends.</p>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <!-- Weekly Revenue -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">7-Day Revenue</h3>
+    </div>
+    <div style="height: 300px;">
+      <canvas id="weeklyChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Monthly Revenue -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">30-Day Trajectory</h3>
+    </div>
+    <div style="height: 300px;">
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Assuming NOMAD Chart JS initialization from nomad.js is available
+  document.addEventListener("DOMContentLoaded", () => {
+    try {
+      const weeklyCtx = document.getElementById('weeklyChart');
+      const monthlyCtx = document.getElementById('monthlyChart');
+      
+      const wLabels = JSON.parse('{{ weekly_labels|safe }}');
+      const wData = JSON.parse('{{ weekly_rev|safe }}');
+      
+      const mLabels = JSON.parse('{{ monthly_labels|safe }}');
+      const mData = JSON.parse('{{ monthly_rev|safe }}');
+      
+      new Chart(weeklyCtx, {
+        type: 'line',
+        data: { labels: wLabels, datasets: [{ label: 'Revenue', data: wData, borderColor: '#D4622A', backgroundColor: 'rgba(212,98,42,0.1)', fill: true, tension: 0.4 }] },
+        options: NOMAD.chartDefaults
+      });
+
+      new Chart(monthlyCtx, {
+        type: 'bar',
+        data: { labels: mLabels, datasets: [{ label: 'Revenue', data: mData, backgroundColor: '#E8A93A', borderRadius: 4 }] },
+        options: Object.assign({}, NOMAD.chartDefaults, {
+          scales: { x: { display: false }, y: { display: true, grid: { color: 'rgba(255,255,255,0.05)' } } }
+        })
+      });
+    } catch(e) { console.warn("Chart rendering failed:", e); }
+  });
+</script>
+{% endblock %}

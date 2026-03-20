@@ -48,6 +48,12 @@ class Dish(models.Model):
         ordering = ['category', 'display_order', 'name']
         verbose_name_plural = 'Dishes'
 
+    @property
+    def image(self):
+        if self.image_local:
+            return self.image_local
+        return None
+
     def __str__(self):
         return f"{self.name} — ₹{self.price}"
 

@@ -18,19 +18,27 @@
       This code redirects directly to your live digital menu. Customers can scan it anywhere without an app.
     </div>
     
-    {% if restaurant.menu_qr_code %}
+    {% if restaurant.qr_code_local %}
     <div style="background: white; padding: 16px; border-radius: 8px; display: inline-block; margin-bottom: 32px;">
-      <img src="{{ restaurant.menu_qr_code.url }}" alt="Menu QR Code" style="width: 200px; height: 200px; image-rendering: pixelated;">
+      <img src="{{ restaurant.qr_code_local.url }}" alt="Menu QR Code" style="width: 200px; height: 200px; image-rendering: pixelated;">
     </div>
     <div style="display: flex; gap: 12px; justify-content: center;">
-      <a href="{{ restaurant.menu_qr_code.url }}" download class="btn btn-primary" style="justify-content: center;"><i data-lucide="download"></i> Vector PNG</a>
-      <button class="btn btn-secondary" onclick="NOMAD.copyMenuLink('{{ request.scheme }}://{{ request.get_host }}/menu/{{ restaurant.id }}/')"><i data-lucide="link"></i> Copy URL</button>
+      <a href="{{ restaurant.qr_code_local.url }}" download class="btn btn-primary" style="justify-content: center;"><i data-lucide="download"></i> Vector PNG</a>
+      <form method="POST" action="{% url 'owner_qr_menu' %}" style="margin: 0;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="regenerate">
+        <button type="submit" class="btn btn-secondary"><i data-lucide="refresh-cw"></i> Regenerate</button>
+      </form>
     </div>
     {% else %}
     <div style="width: 200px; height: 200px; border: 1px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto 32px; color: var(--text-dim);">
-      Generating...
+      Missing Code
     </div>
-    <div style="font-size: 12px; color: var(--accent);">Your QR code will be available once your restaurant profile is marked Active by a Super Admin.</div>
+    <form method="POST" action="{% url 'owner_qr_menu' %}" style="text-align: center;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="regenerate">
+      <button type="submit" class="btn btn-primary" style="margin: 0 auto;">Generate QR Code Now</button>
+    </form>
     {% endif %}
   </div>
 

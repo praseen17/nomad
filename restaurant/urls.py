@@ -44,4 +44,7 @@ urlpatterns = [
     path('superadmin/reject/<int:restaurant_id>/', views.superadmin_reject, name='superadmin_reject'),
     path('superadmin/audit-log/', views.superadmin_audit, name='superadmin_audit'),
     path('superadmin/broadcast/', views.superadmin_broadcast, name='superadmin_broadcast'),
+
+    # Shared / Utility
+    path('shared/invoice/print/<int:invoice_id>/', views.invoice_print, name='invoice_print'),
 ]
